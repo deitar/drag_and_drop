@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Static Template</title>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        // Get the elements by class names
+        const elements = document.getElementsByClassName("drags");
+        // Add the ondragstart event listener to all elements
+        Array.from(elements).forEach((element) => {
+          element.addEventListener("dragstart", dragstart_handler);
+          element.addEventListener("dragend", dragend_handler);
+        });
+
+        add_new_form_container();
+      });
+
+      function dragstart_handler(ev) {
+        console.log(ev);
+        // Add the target element's id to the data transfer object
+        // ev.dataTransfer.dropEffect = "copy";
+        // ev.dataTransfer.effectAllowed = "move";
+        ev.dataTransfer.setData("text/plain", ev.target.dataset.uniqueId);
+      }
+      function dragover_handler(ev) {
+        ev.preventDefault();
+      }
+      function drop_handler(ev) {
+        console.log("dropping");
+        // Get the id of the target and add the moved element to the target's DOM
+        const data = ev.dataTransfer.getData("text/plain");
+        var form_item = ev.target.parentElement;
+
+        add_new_form_element(form_item, data);
+        // add_new_form_container();
+        // add new form_item with target to the bottom of "this"
+        ev.preventDefault();
+      }
+      function dragend_handler(ev) {
+        ev.preventDefault();
+      }
+      function dragenter_handler(ev) {
+        ev.target.classList.add("dragging");
+      }
+      function dragleave_handler(ev) {
+        console.log("leaving");
+        ev.target.classList.remove("dragging");
+      }
+      function add_new_form_container() {
+        var form_item_html = `<div class="form-item">
+          <div
+            class="targets"
+            ondrop="drop_handler(event)"
+            ondragover="dragover_handler(event)"
+            ondragenter="dragenter_handler(event)"
+            ondragleave="dragleave_handler(event)"
+          >
+            <!-- Drop Zone 1 -->
+          </div>
+        </div>`;
+        document
+          .getElementById("form-wrapper")
+          .insertAdjacentHTML("beforeend", form_item_html);
+      }
+      function add_new_form_element(parent, data) {
+        var elem = document.createElement("input");
+        elem.name = "input_1";
+        console.log(elem.outerHTML);
+
+        // parent.innerHTML = "";
+        // parent.appendChild(elem);
+        parent.insertAdjacentHTML("afterend", elem.outerHTML);
+        add_new_form_container();
+      }
+    </script>
+
+    <style>
+      .drags {
+        border: 1px solid #aaa;
+        /* margin-bottom: 5px; */
+        padding: 5px;
+      }
+      .targets {
+        min-height: 10px;
+        margin-bottom: 5px;
+        /* background: #eee; */
+        /* flex: auto; */
+        /* border: 1px solid red; */
+      }
+      .dragging {
+        background: #dcdcdc;
+        height: 100px;
+      }
+      #form-wrapper {
+        min-height: 200px;
+        /* display: flex; */
+        /* flex-direction: column; */
+      }
+      .form-item {
+        border: 1px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="drags" data-unique-id="a1" draggable="true">Drag 1</div>
+      <div class="drags" data-unique-id="b1" draggable="true">Drag 2</div>
+    </div>
+
+    <div id="form-wrapper">
+      <!-- <div class="form-item">
+        <div
+          class="targets"
+          ondrop="drop_handler(event)"
+          ondragover="dragover_handler(event)"
+        >
+        </div>
+      </div> -->
+    </div>
+  </body>
+</html>

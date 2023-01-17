@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Static Template</title>
+
+    <script>
+      var form_elements_json = [
+        {
+          id: "1",
+          name: "alpha"
+        },
+        {
+          id: "2",
+          name: "beta"
+        },
+        {
+          id: "3",
+          name: "delta"
+        },
+        {
+          id: "4",
+          name: "gamma"
+        }
+      ];
+      window.addEventListener("DOMContentLoaded", () => {
+        const elements_container = document.querySelector("div.drags");
+        form_elements_json.forEach((e) => {
+          elements_container.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="sort-item" data-id=${e.id} draggable=false>
+              <div class="grabber">
+                <span class="grabber-icon"></span>
+              </div>
+              <div class="content">${e.name}</div>
+            </div>
+            `
+          );
+        });
+
+        // Get the grabber icons div
+        var grabbers = document.querySelectorAll("div.grabber");
+
+        // Add the ondragstart event listener to all elements
+        Array.from(grabbers).forEach((grabber) => {
+          grabber.addEventListener("mousedown", (e) => {
+            console.log(grabber.parentNode);
+            grabber.parentNode.draggable = true;
+          });
+        });
+
+        var currently_dragged = null;
+
+        var elements = elements_container.children;
+
+        // FOLLOW EVENTS
+        for (let element of elements) {
+          // DRAG START
+          element.ondragstart = (e) => {
+            currently_dragged = element;
+            e.dataTransfer.effectAllowed = "move";
+          };
+
+          // DRAG ENTER
+          element.ondragenter = (e) => {
+            if (currently_dragged.dataset.id != element.dataset.id) {
+              var currently_dropped_pos = null;
+              for (let i = 0; i < elements.length; i++) {
+                if (currently_dragged.dataset.id == elements[i].dataset.id) {
+                  currently_dragged_pos = i;
+                  currently_dragged = elements[i];
+                }
+                if (element.dataset.id == elements[i].dataset.id) {
+                  currently_dropped_pos = i;
+                  currently_dropped = elements[i];
+                }
+              }
+
+              if (currently_dragged_pos < currently_dropped_pos) {
+                currently_dragged.parentNode.insertBefore(
+                  currently_dragged,
+                  currently_dropped.nextSibling
+                );
+                currently_dropped.nextSibling.classList.add("active");
+              } else {
+                currently_dragged.parentNode.insertBefore(
+                  currently_dragged,
+                  currently_dropped
+                );
+                currently_dropped.previousSibling.classList.add("active");
+              }
+            }
+          };
+
+          element.ondragleave = (e) => {
+            if (currently_dragged.dataset.id != element.dataset.id) {
+              element.classList.remove("active");
+            }
+          };
+
+          element.ondragover = (e) => e.preventDefault();
+
+          element.ondragend = (e) => {
+            element.classList.remove("active");
+          };
+        }
+      });
+    </script>
+
+    <style>
+      .drags div.sort-item {
+        margin-bottom: 5px;
+        background: rgb(240, 240, 240);
+        text-decoration-style: none;
+      }
+
+      .drags .sort-item div.content,
+      .drags .sort-item div.grabber {
+        display: inline-block;
+        padding: 5px;
+      }
+
+      .drags .sort-item div.content {
+        position: absolute;
+        padding-left: 0px;
+      }
+
+      .drags .sort-item div.grabber {
+        min-width: 20px;
+        height: 20px;
+        cursor: move;
+        cursor: -webkit-grab;
+        cursor: -moz-grab;
+      }
+
+      .drags .sort-item span.grabber-icon:before {
+        content: ".";
+        position: absolute;
+        font-size: 20px;
+        line-height: 0px;
+        width: 15px;
+        color: #555;
+        text-shadow: 0px 5px, 0px 10px, 5px 0, 5px 5px, 5px 10px, 10px 0,
+          10px 5px, 10px 10px;
+      }
+      .drags div.sort-item.active {
+        background: #5ccbe8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="drags"></div>
+  </body>
+</html>
